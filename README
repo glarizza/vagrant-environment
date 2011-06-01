@@ -1,0 +1,1 @@
+This repository is for everything I need to setup a default Vagrant environment.  The Vagrant module contains all the repositories and fixes I need to test Puppet Modules in both Debian and RHEL system.  
