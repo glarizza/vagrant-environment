@@ -5,6 +5,14 @@ class vagrant::aptitude {
     refreshonly => true,
     path        => '/bin:/usr/bin:/sbin:/usr/sbin',
   }
+  
+  exec { "import-key":
+    user    => root,
+    command => "/usr/bin/wget -q -O - http://apt.puppetlabs.com/ops/4BD6EC30.asc | apt-key add -",
+    unless  => "/usr/bin/apt-key list | grep -q 4BD6EC30",
+    notify  => Exec["aptitude_update"],
+    before  => File['mcollective_repo'],
+  }
 
   file { 'kumina_repo':
     ensure  => file,
@@ -17,14 +25,14 @@ class vagrant::aptitude {
   }
 
   file { 'mcollective_repo':
-    ensure  => file,
-    path    => '/etc/apt/sources.list.d/mcollective_repo.list',
-    content => 'deb http://apt.puppetlabs.com/ubuntu unstable main',
-    mode    => '0644',
-    owner   => 'root',
-    group   => 'root',
-    notify  => Exec['aptitude_update'],
-  }
+      ensure  => file,
+      path    => '/etc/apt/sources.list.d/mcollective_repo.list',
+      content => 'deb http://apt.puppetlabs.com/ubuntu unstable main',
+      mode    => '0644',
+      owner   => 'root',
+      group   => 'root',
+      notify  => Exec['aptitude_update'],
+    }
   
   file { 'riptano':
     ensure  => file,
@@ -36,15 +44,15 @@ class vagrant::aptitude {
     notify  => Exec['aptitude_update'],
   }
   
-    file { 'debian_experimental':
-      ensure  => file,
-      path    => '/etc/apt/sources.list.d/debian_experimental.list',
-      content => 'deb http://ftp.de.debian.org/debian experimental main',
-      mode    => '0644',
-      owner   => 'root',
-      group   => 'root',
-      notify  => Exec[aptitude_update],
-    }
+  file { 'debian_experimental':
+    ensure  => file,
+    path    => '/etc/apt/sources.list.d/debian_experimental.list',
+    content => 'deb http://ftp.de.debian.org/debian experimental main',
+    mode    => '0644',
+    owner   => 'root',
+    group   => 'root',
+    notify  => Exec[aptitude_update],
+  }
 
   file { 'ignore_trust_violations':
     ensure  => file,
@@ -53,7 +61,8 @@ class vagrant::aptitude {
     mode    => '0644',
     owner   => 'root',
     group   => 'root',
-    before  => File['mcollective_repo', 'riptano', 'debian_experimental', 'kumina_repo'],
+    before  => File['riptano', 'mcollective_repo', 'debian_experimental', 'kumina_repo'],
     notify  => Exec['aptitude_update'],
   }
+  
 }
